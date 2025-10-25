@@ -69,12 +69,19 @@ check_feature_branch() {
     fi
 
     # SPEC-UUID形式のチェック
-    if [[ ! "$branch" =~ ^SPEC-[a-f0-9]{8}$ ]]; then
-        echo "エラー: 機能ブランチ上にありません。現在のブランチ: $branch" >&2
-        echo "機能ブランチは次のように命名する必要があります: SPEC-xxxxxxxx" >&2
-        return 1
+    if [[ "$branch" =~ ^SPEC-[a-f0-9]{8}$ ]]; then
+        return 0
     fi
 
+    local requested_feature="${SPECIFY_FEATURE:-}"
+    if [[ -n "$requested_feature" ]]; then
+        echo "[specify] 警告: SPECIFY_FEATURE=$requested_feature が設定されていますが、現在のGitブランチは $branch です。" >&2
+        echo "[specify] Gitブランチ操作は自動では行われません。必要に応じて手動で切り替えてください。" >&2
+        return 0
+    fi
+
+    echo "[specify] 警告: 現在のGitブランチ($branch)はSPEC-xxxxxxxx形式ではありません。ブランチ切り替えは任意です。" >&2
+    echo "[specify] Gitブランチ/ワークツリーの作成や切替は自動化されていません。" >&2
     return 0
 }
 

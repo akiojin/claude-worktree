@@ -157,10 +157,9 @@ fi
 
 BRANCH_NAME="$SPEC_ID"
 
+# ブランチやワークツリーの自動生成は行わず、既存ブランチ上で作業を続行する
 if [ "$HAS_GIT" = true ]; then
-    git checkout -b "$BRANCH_NAME"
-else
-    >&2 echo "[specify] 警告: Gitリポジトリが検出されませんでした。ブランチ $BRANCH_NAME の作成をスキップしました。"
+    >&2 echo "[specify] Gitブランチ/ワークツリーの作成は行いません。必要に応じて手動で管理してください。"
 fi
 
 FEATURE_DIR="$SPECS_DIR/$BRANCH_NAME"
@@ -176,7 +175,7 @@ export SPECIFY_FEATURE="$BRANCH_NAME"
 if $JSON_MODE; then
     printf '{"BRANCH_NAME":"%s","SPEC_FILE":"%s","SPEC_ID":"%s"}\n' "$BRANCH_NAME" "$SPEC_FILE" "$SPEC_ID"
 else
-    echo "ブランチ名: $BRANCH_NAME"
+    echo "機能ID: $BRANCH_NAME"
     echo "仕様ファイル: $SPEC_FILE"
     echo "SPEC ID: $SPEC_ID"
     echo "SPECIFY_FEATURE 環境変数を設定: $BRANCH_NAME"

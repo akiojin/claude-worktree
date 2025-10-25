@@ -11,15 +11,16 @@ get_current_branch() {
     git rev-parse --abbrev-ref HEAD
 }
 
-# Check if current branch is a feature branch
-# Returns 0 if valid, 1 if not
+# Check if current branch follows the legacy feature naming convention
+# Returns 0 in all cases but emits warnings when the format differs
 check_feature_branch() {
     local branch="$1"
-    if [[ ! "$branch" =~ ^[0-9]{3}- ]]; then
-        echo "ERROR: Not on a feature branch. Current branch: $branch"
-        echo "Feature branches should be named like: 001-feature-name"
-        return 1
+    if [[ "$branch" =~ ^[0-9]{3}- ]]; then
+        return 0
     fi
+
+    echo "WARNING: Current Git branch '$branch' does not match the 001-feature-name pattern." >&2
+    echo "WARNING: Spec scripts no longer create or switch branches automatically; manage Git state manually if required." >&2
     return 0
 }
 

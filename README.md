@@ -171,6 +171,8 @@ Execute these commands in Claude Code to leverage spec-driven development:
 4. Generate tasks with `/speckit.tasks`
 5. Implement with `/speckit.implement`
 
+> Git note: The bundled Spec Kit scripts do not create Git branches or worktrees. Manage branch/worktree changes manually when needed.
+
 For more details, see the [Spec Kit documentation](https://github.com/akiojin/spec-kit).
 
 ## Project Structure
