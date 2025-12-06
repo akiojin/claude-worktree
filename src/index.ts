@@ -38,6 +38,7 @@ import { launchCustomAITool } from "./launcher.js";
 import { saveSession, loadSession } from "./config/index.js";
 import { getPackageVersion } from "./utils.js";
 import readline from "node:readline";
+import { resolveContinueSessionId } from "./cli/ui/utils/continueSession.js";
 import {
   installDependenciesForWorktree,
   DependencyInstallError,
@@ -573,6 +574,7 @@ export async function handleAIToolWorkflow(
         toolLabel: toolConfig.displayName ?? tool,
         mode,
         model: model ?? null,
+        reasoningLevel: inferenceLevel ?? null,
         timestamp: Date.now(),
         repositoryRoot: repoRoot,
       },
@@ -588,27 +590,15 @@ export async function handleAIToolWorkflow(
       const existingSession = await loadSession(repoRoot);
       const history = existingSession?.history ?? [];
 
-      for (let i = history.length - 1; i >= 0; i -= 1) {
-        const entry = history[i];
-        if (
-          entry &&
-          entry.branch === branch &&
-          entry.toolId === tool &&
-          entry.sessionId
-        ) {
-          resumeSessionId = entry.sessionId;
-          break;
-        }
-      }
-
-      if (
-        !resumeSessionId &&
-        existingSession?.lastSessionId &&
-        existingSession.lastUsedTool === tool &&
-        existingSession.lastBranch === branch
-      ) {
-        resumeSessionId = existingSession.lastSessionId;
-      }
+      resumeSessionId =
+        resumeSessionId ??
+        (await resolveContinueSessionId({
+          history,
+          sessionData: existingSession,
+          branch,
+          toolId: tool,
+          repoRoot,
+        }));
 
       if (!resumeSessionId) {
         printWarning(
@@ -742,6 +732,7 @@ export async function handleAIToolWorkflow(
       toolLabel: toolConfig.displayName ?? tool,
       mode,
       model: model ?? null,
+      reasoningLevel: inferenceLevel ?? null,
       timestamp: Date.now(),
       repositoryRoot: repoRoot,
       lastSessionId: finalSessionId,
